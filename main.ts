@@ -1,4 +1,4 @@
-import {loop, createCanvas, clamp, keys} from './utils'
+import {loop, createCanvas, clamp, keys, floor, round} from './utils'
 import {World, Entity} from './world'
 import { PlatformController } from './platformController'
 import Vector from './vector'
@@ -20,7 +20,7 @@ var grid = [
     [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0],
     [0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0],
     [0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0],
     [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0],
     [1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
@@ -38,19 +38,30 @@ var {canvas,ctxt} = createCanvas(screensize.x,screensize.y)
 // platformController.body.block.set(new Vector(40,40),new Vector(0,0))
 // platformController.body.speed = new Vector(0,100)
 
+
 loop((dt) => {
     if(keys['p']){
         keys['p'] = false
         debugger
     }
+    ctxt.resetTransform()
     ctxt.clearRect(0,0,screensize.x,screensize.y)
+    setCamera(platformController.body.block.center())
+    // setCamera(screensize.c().scale(0.5))
 
     dt = clamp(dt,0.005,0.1)
     world.update(dt)
     
     world.debugDrawGrid(ctxt)
-    world.debugDrawRays(ctxt)
+    // world.debugDrawRays(ctxt)
     world.emptyFiredRays()
-
 })
+
+function setCamera(pos:Vector){
+    ctxt.resetTransform()
+    pos.sub(screensize.c().scale(0.5))
+    // pos.add
+    ctxt.translate(round(-pos.x),round(-pos.y))
+}
+
 

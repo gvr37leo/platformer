@@ -90,7 +90,7 @@ export function swap(arr,a,b){
 }
 
 export function fillRect(ctxt:CanvasRenderingContext2D,pos:Vector,size:Vector){
-    ctxt.fillRect(pos.x, pos.y, size.x, size.y)
+    ctxt.fillRect(round(pos.x), round(pos.y), size.x, size.y)
 }
 
 export function line(ctxt:CanvasRenderingContext2D,origin:Vector,destination:Vector){
