@@ -55,8 +55,8 @@ loop((dt) => {
     world.update(dt)//body gets moved
     camera.update()
     world.debugDrawGrid(ctxt)//body gets drawn
-    camera.debugdraw(ctxt)
-    world.debugDrawRays(ctxt)
+    // camera.debugdraw(ctxt)
+    // world.debugDrawRays(ctxt)
     world.emptyFiredRays()
 })
 

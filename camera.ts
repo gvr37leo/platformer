@@ -20,7 +20,7 @@ export default class Camera{
         this.pos = focus.block.center()
         // this.offset = this.screensize.c().scale(0.5).scale(-1)
         // var halfsize = this.screensize.c().scale(0.5)
-        var slacksize = new Vector(100,110)
+        var slacksize = new Vector(60,30)
         // this.deadZone = new Block(halfsize.c().sub(slacksize), halfsize.c().add(slacksize))
         this.deadZone = new Block(slacksize.c().scale(-1),slacksize)
         this.screenshakeAnim.animType = AnimType.once
@@ -34,7 +34,7 @@ export default class Camera{
         
         var target = this.focus.block.center()
         // target.add(this.focus.vel.c().sign().scale(50))
-        target.add(this.focus.vel.c().scale(0.2))
+        // target.add(this.focus.vel.c().scale(0.2))
         this.target = target
         var pos2target = this.pos.to(target)
         var clampedp2t = this.deadZone.clamp(pos2target.c())
