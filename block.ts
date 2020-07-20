@@ -1,5 +1,5 @@
 import Vector from "./vector"
-import { lerp, fillRect } from "./utils"
+import { lerp, fillRect, inRange, clamp } from "./utils"
 
 export class Block{
     constructor(public min:Vector, public max:Vector){
@@ -15,6 +15,10 @@ export class Block{
             lerp(this.min.x,this.max.x,v.x),
             lerp(this.min.y,this.max.y,v.y),
         )
+    }
+
+    getCorner0Centered(v:Vector):Vector{
+        return this.getCorner(v)
     }
 
     center(){
@@ -44,5 +48,13 @@ export class Block{
 
     c(){
         return new Block(this.min.c(),this.max.c())
+    }
+
+    clamp(v:Vector){
+        return v.map((val,arr,i) => clamp(val,this.min.vals[i],this.max.vals[i]))
+    }
+
+    intersectVector(v:Vector):boolean{
+        return inRange(this.min.x,this.max.x,v.x) && inRange(this.min.y,this.max.y,v.y)
     }
 }

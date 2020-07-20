@@ -1,6 +1,6 @@
 import Vector from './vector'
 import { inverseLerp, findbest, inRange, to, swap, findbestIndex, line, gen2Darray, lerp, lengthen, clamp, ceil } from './utils'
-import { EventSystem } from './eventsystem'
+import { EventSystem, Box } from './eventsystem'
 import { Block } from './block'
 
 
@@ -12,6 +12,17 @@ export class Entity{
     dir:Vector = new Vector(1,0)
 
     constructor(public block:Block){
+
+    }
+}
+
+export class BoxcastHit{
+
+    constructor(
+        public rays:RaycastHit[],
+        public hit:boolean,
+        public hitray:RaycastHit,
+    ){
 
     }
 }
@@ -74,8 +85,9 @@ export class World{
             return
         }
         var hit = this.boxCast(entity.block,axis,amount)
-        entity.block.move(hit.relHitLocation)
+        entity.block.move(hit.hitray.relHitLocation)
         entity.grounded.vals[axis] = (hit.hit ? 1 : 0) * Math.sign(amount)
+        
         if(hit.hit){
             entity.vel.vals[axis] = 0
         }
@@ -84,7 +96,8 @@ export class World{
     boxCast(block:Block,axis:number,amount:number,_skinwidth = this.skinwidth){
         var dir = VFromAxisAmount(axis,amount)
         if(amount == 0){
-            return new RaycastHit(false,block.center(),dir,null,new Vector(0,0),null,null)
+            var dut = new RaycastHit(false,block.center(),dir,null,new Vector(0,0),null,null)
+            return new BoxcastHit([dut],false,dut) 
         }
         var skinblock = block.c()
         skinblock.min.add(new Vector(_skinwidth,_skinwidth))
@@ -97,7 +110,7 @@ export class World{
             ray.relHitLocation.vals[axis] = lengthen(ray.relHitLocation.vals[axis], -_skinwidth)
             this.firedRays.push(ray)
         }
-        return hitray ?? rays[0]
+        return new BoxcastHit(rays,hitray?.hit ?? false,hitray ?? rays[0])
     }
 
     raycastAxisAligned(originWorld:Vector,axis,amount):RaycastHit{
@@ -107,7 +120,9 @@ export class World{
         for(var i = 0; i <= boxes2check; i++){
             var pos = originWorld.lerp(end,i / boxes2check)
             if(this.isBlocked(pos)){
-                return this.rayCast(originWorld,dirWorld,this.getBlock(pos))
+                var raycast = this.rayCast(originWorld,dirWorld,this.getBlock(pos))
+                raycast.hitIndex = this.world2index(pos)
+                return raycast
             }
         }
         return new RaycastHit(false,originWorld,dirWorld,originWorld.c().add(dirWorld),dirWorld.c(),dirWorld.c().normalize().scale(-1),null)
@@ -230,7 +245,7 @@ function relIntersect(amin:number,amax:number,bmin:number,bmax:number,out:[numbe
     var length = Math.abs(to(amin, amax))
     out[0] = Math.abs(to(amin,bmin)) / length;
     out[1] = Math.abs(to(amin,bmax)) / length;
-    if(amin > amax){
+    if(out[0] > out[1]){
         swap(out,0,1)
     }
 }

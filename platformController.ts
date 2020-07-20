@@ -15,7 +15,8 @@ export class PlatformController{
     jumpAmmo = this.jumpMaxAmmo
     climbforce = 2000
     wallhangResetsJumpAmmo = true
-    fallStart = 0
+    coyotetime = 0.3
+    coyotetimer = this.coyotetime
 
     constructor(public body:Entity,public  world:World){
         world.entities.push(body)
@@ -43,11 +44,13 @@ export class PlatformController{
                 var stopstrength = this.body.grounded.y == 0 ? this.airpassiveStopForce : this.passiveStopForce
                 applyStoppingForce(this.body.vel,new Vector(stopstrength * dt,0))
             }
+
+            
             
         })
 
         document.addEventListener('keydown',(e) => {
-            if(e.repeat){
+            if(e.repeat || this.body.grounded.y == 1){//ground jumps are done by polling in update
                 return
             }
             if(e.key == ' ' || e.key == 'w'){
@@ -55,12 +58,17 @@ export class PlatformController{
             }
         })
 
-        world.afterUpdate.listen(() => {
+        world.afterUpdate.listen((dt) => {
             if(this.body.grounded.y == 1){
                 this.jumpAmmo = this.jumpMaxAmmo
             }
             if(this.body.grounded.x != 0 && this.wallhangResetsJumpAmmo){
                 this.jumpAmmo = this.jumpMaxAmmo
+            }
+
+            this.coyotetimer -= dt
+            if(this.body.grounded.y == 1){
+                this.coyotetimer = this.coyotetime
             }
         })
     }
@@ -79,8 +87,11 @@ export class PlatformController{
             }
         }
 
-        if(hanging != 0 || this.body.grounded.y == 1){
+        
+        
+        if(hanging != 0 || this.body.grounded.y == 1 || this.coyotetimer > 0){
             jump()
+            this.coyotetimer = 0
         }else if(this.jumpAmmo > 0){
             jump()
             this.jumpAmmo--

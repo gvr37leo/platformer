@@ -1,3 +1,5 @@
+import { round } from "./utils"
+
 export default class Vector{
     vals:number[] = []
     constructor(x, y, z = 0){
@@ -38,6 +40,10 @@ export default class Vector{
         return this.map((val,arr,i) => Math.ceil(val))
     }
 
+    sign():Vector{
+        return this.map((val,arr,i) => Math.sign(val))
+    }
+
     lerp(v:Vector,t:number):Vector{
         return this.c().add(this.to(v).scale(t))
     }
@@ -55,7 +61,12 @@ export default class Vector{
     }
 
     normalize():Vector{
-        return this.scale(1 / this.length())
+        var length = this.length()
+        if(length == 0){
+            return this.scale(0)
+        }else{
+            return this.scale(1 / length)
+        }
     }
 
     c():Vector{
@@ -108,7 +119,9 @@ export default class Vector{
     }
 
     draw(ctxt:CanvasRenderingContext2D):Vector{
-
+        var width = 10
+        var hw = width / 2
+        ctxt.fillRect(round(this.x - hw),round(this.y - hw),width,width )
         return this
     }
 

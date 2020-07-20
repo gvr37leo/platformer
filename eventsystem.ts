@@ -1,16 +1,21 @@
 export class Box<T>{
-    value:T
     beforeChange:EventSystem<T> = new EventSystem()
     afterChange:EventSystem<T> = new EventSystem()
+
+    constructor(public value:T){
+
+    }
 
     get():T{
         return this.value
     }
 
     set(val:T){
-        this.beforeChange.trigger(this.value)
-        this.value = val
-        this.afterChange.trigger(this.value)
+        if(val != this.value){
+            this.beforeChange.trigger(this.value)
+            this.value = val
+            this.afterChange.trigger(this.value)
+        }
     }
 }
 

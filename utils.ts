@@ -93,6 +93,10 @@ export function fillRect(ctxt:CanvasRenderingContext2D,pos:Vector,size:Vector){
     ctxt.fillRect(round(pos.x), round(pos.y), size.x, size.y)
 }
 
+export function strokeRect(ctxt:CanvasRenderingContext2D,pos:Vector,size:Vector){
+    ctxt.strokeRect(round(pos.x) + 0.5, round(pos.y) + 0.5, size.x, size.y)
+}
+
 export function line(ctxt:CanvasRenderingContext2D,origin:Vector,destination:Vector){
     ctxt.beginPath()
     var dir = origin.to(destination).normalize().scale(0.5)
@@ -155,3 +159,89 @@ export function max(a,b){
     return Math.max(a,b)
 }
 
+export function mod(number: number, modulus: number){
+    return ((number%modulus)+modulus)%modulus;
+}
+
+export class StopWatch{
+
+    starttimestamp = Date.now()
+    pausetimestamp = Date.now()
+    pausetime = 0
+    paused = true
+
+    get():number{
+        var currentamountpaused = 0
+        if(this.paused){
+            currentamountpaused = to(this.pausetimestamp,Date.now())
+        }
+        return to(this.starttimestamp, Date.now()) - (this.pausetime + currentamountpaused)
+    }
+
+
+
+    start(){
+        this.paused = false
+        this.starttimestamp = Date.now()
+        this.pausetime = 0
+    }
+
+    continue(){
+        if(this.paused){
+            this.paused = false
+            this.pausetime += to(this.pausetimestamp, Date.now())
+        }
+    }
+
+    pause(){
+        if(this.paused == false){
+            this.paused = true
+            this.pausetimestamp = Date.now()
+        }
+    }
+
+    reset(){
+        this.paused = true
+        this.starttimestamp = Date.now()
+        this.pausetimestamp = Date.now()
+        this.pausetime = 0
+    }
+}
+
+export enum AnimType{once,repeat,pingpong,extend}
+
+export class Anim{
+    animType:AnimType = AnimType.once
+    reverse:boolean = false
+    duration:number = 1000
+    stopwatch:StopWatch = new StopWatch()
+    begin:number = 0
+    end:number = 1
+
+    constructor(){
+
+    }
+
+    get():number{
+        var cycles = this.stopwatch.get() / this.duration
+
+        switch (this.animType) {
+            case AnimType.once:
+                return clamp(lerp(this.begin,this.end,cycles),this.begin,this.end) 
+            case AnimType.repeat:
+                return lerp(this.begin,this.end,mod(cycles,1))
+            case AnimType.pingpong:
+                
+                var pingpongcycle = mod(cycles, 2)
+                if(pingpongcycle <= 1){
+                    return lerp(this.begin,this.end,pingpongcycle)
+                }else{
+                    return lerp(this.end,this.begin,pingpongcycle - 1)
+                }
+
+            case AnimType.extend:
+                var distPerCycle = to(this.begin,this.end)
+                return Math.floor(cycles) * distPerCycle + lerp(this.begin,this.end,mod(cycles,1))
+        }
+    }
+}
