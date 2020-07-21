@@ -5,6 +5,8 @@ import Vector from './vector'
 import { Block } from './block'
 import { TopDownController } from './topdownController'
 import Camera from './camera'
+import { IndexedDB } from './indexeddb'
+import Level from './level'
 
 var x = window as any
 x.keys = keys
@@ -60,6 +62,22 @@ loop((dt) => {
     world.emptyFiredRays()
 })
 
-
+var idb = new IndexedDB('test',1,(db,self) => {
+    var levelstore = db.createObjectStore("level2", { keyPath: "id",autoIncrement:true })
+    // self.create('level2',new Level(1,[
+    //     [1,0,0,1]
+    // ]), id => {
+    //     console.log(id)
+    // })
+    
+},(db) => {
+    // db.read('level',1,(val) => {
+    //     console.log(val)
+    // })
+    db.add('level2',new Level(1,[[1,1,1]])).then(id => console.log(id))
+    db.filter('level2',e => true,(res) => {
+        console.log(res)
+    })
+})
 
 
