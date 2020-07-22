@@ -53,7 +53,7 @@ export class World{
     afterUpdate = new EventSystem<number>()
     skinwidth = 0.01
 
-    constructor(public gridsize:Vector, public tilesize:number){
+    constructor(gridsize:Vector, public tilesize:number){
         this.grid = gen2Darray(gridsize,() => 0)
     }
 
@@ -117,7 +117,7 @@ export class World{
         var dirWorld = VFromAxisAmount(axis,amount)
         var end = originWorld.c().add(dirWorld)
         var boxes2check = ceil(Math.abs(amount) / this.tilesize)
-        for(var i = 0; i <= boxes2check; i++){
+        for(var i = 1; i <= boxes2check; i++){
             var pos = originWorld.lerp(end,i / boxes2check)
             if(this.isBlocked(pos)){
                 var raycast = this.rayCast(originWorld,dirWorld,this.getBlock(pos))
@@ -167,7 +167,8 @@ export class World{
 
     isBlocked(world:Vector){
         var index = this.world2index(world)
-        if(inRange(0,this.gridsize.x - 1,index.x) && inRange(0,this.gridsize.y - 1,index.y)){
+        var gridsize = this.gridsize()
+        if(inRange(0,gridsize.x - 1,index.x) && inRange(0,gridsize.y - 1,index.y)){
             return this.grid[index.y][index.x]
         }
         return false
@@ -192,7 +193,7 @@ export class World{
 
     debugDrawGrid(ctxt:CanvasRenderingContext2D){
         ctxt.fillStyle = 'black'
-        this.gridsize.loop2d(i => {
+        this.gridsize().loop2d(i => {
             if(this.isBlockedIndex(i)){
                 this.getBlock(this.index2world(i)).draw(ctxt)
             }
@@ -215,6 +216,10 @@ export class World{
             var dir = ray.dir.c().normalize()
             line(ctxt,ray.origin,ray.origin.c().add(dir.scale(10)))
         }
+    }
+
+    gridsize(){
+        return new Vector(this.grid[0].length,this.grid.length)
     }
 }
 

@@ -26,7 +26,7 @@ export class IndexedDB{
         })
     }
 
-    read(table:string,id:any,cb){
+    get(table:string,id:any){
         return new Promise((res,rej) => {
             this.db.transaction(table,'readonly').objectStore(table).get(id).onsuccess = function(e:any) {
                 res(e.target.result)
@@ -34,7 +34,7 @@ export class IndexedDB{
         })
     }
     
-    add(table:string,object:any){
+    add(table:string,object:any):Promise<any>{
         return new Promise((res,rej) => {
             this.db.transaction(table,'readwrite').objectStore(table).add(object).addEventListener('success', (e:any) => {
                 res(e.target.result)
@@ -42,7 +42,7 @@ export class IndexedDB{
         })
     }
     
-    update(table:string,object:any,cb){
+    update(table:string,object:any){
         return new Promise((res,rej) => {
             var req = this.db.transaction(table,'readwrite').objectStore(table).put(object)
             req.addEventListener('success', (e:any) => {
@@ -51,7 +51,7 @@ export class IndexedDB{
         })
     }
     
-    remove(table:string,key:any,cb){
+    remove(table:string,key:any){
         return new Promise((res,rej) => {
             var req = this.db.transaction(table,'readwrite').objectStore(table).delete(key)
             req.addEventListener('success', (e:any) => {
@@ -60,7 +60,7 @@ export class IndexedDB{
         })
     }
     
-    filter(table:string,filter:(entry:any) => boolean,cb){
+    filter<T>(table:string,filter:(entry:T) => boolean):Promise<T[]>{
         return new Promise((reb,rej) => {
             var res = []
             var req = this.db.transaction(table,'readwrite').objectStore(table).openCursor()

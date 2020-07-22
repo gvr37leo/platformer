@@ -245,3 +245,20 @@ export class Anim{
         }
     }
 }
+
+export function getMousePos(evt:MouseEvent) {
+    return new Vector(evt.offsetX, evt.offsetY)
+}
+
+export function query(selector){
+    var element:HTMLElement = document.querySelector(selector)
+    return element
+}
+
+export function index2d<T>(arr:T[][],v:Vector){
+    return arr[v.y][v.x]
+}
+
+export function index2dset<T>(arr:T[][],val:T,v:Vector){
+    arr[v.y][v.x] = val
+}

@@ -62,6 +62,10 @@ export default class Camera{
         this.ctxt.translate(round(-pos.x),round(-pos.y))
     }
 
+    screenspace2worldspace(pos:Vector){
+        return pos.c().add(this.pos).sub(this.screensize.c().scale(0.5))
+    }
+
     debugdraw(ctxt:CanvasRenderingContext2D){
         ctxt.strokeStyle = 'black'
         strokeRect(ctxt,this.pos.c().add(this.deadZone.min),this.deadZone.size())

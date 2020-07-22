@@ -4,9 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    
+    <style>
+        canvas{
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body style="color: black;">
+    <button id="createlevel">create level</button>
+    <button id="deletelevel">delete level</button>
+    <button id="savelevel">save level</button>
+    <label style="display: block;">
+        level
+        <select id="levelselect">
+        </select>
+    </label>
+    <label>
+        size
+        <input style="display: inline;" id="sizex" value="10" type="number">
+        <input style="display: inline;" id="sizey" value="10" type="number">
+    </label>
+    
+    <label style="display: block;">
+        level
+        <input id="level" value="1" type="number">
+    </label>
+    <label style="display: block;">
+        name
+        <input id="name" value="unnamed" type="text">
+    </label>
+    
     <script src="bundle.js"></script>
 </body>
 </html>
