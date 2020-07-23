@@ -40,16 +40,25 @@ export default class LevelEditor{
             this.lastmouseevent = e
         })
 
+        canvas.addEventListener('mouseup', e => {
+            this.lastmouseevent = e
+        })
+
         canvas.addEventListener('contextmenu', e => {
             e.preventDefault()
         })
 
         world.beforeUpdate.listen(() => {
-            if(this.lastmouseevent && (this.lastmouseevent.buttons & 1) > 0){
+            if(this.lastmouseevent && (this.lastmouseevent.buttons | 3) > 0){
                 var pos = getMousePos(this.lastmouseevent)
                 var iv = world.world2index(this.camera.screenspace2worldspace(pos))
                 if(Block.fromSize(new Vector(0,0),this.world.gridsize().sub(new Vector(1,1))).intersectVector(iv)){
-                    this.world.grid[iv.y][iv.x] = this.lastmouseevent.shiftKey ? 0 : 1
+                    if((this.lastmouseevent.buttons & 1) > 0){
+                        this.world.grid[iv.y][iv.x] = 1
+                    }if((this.lastmouseevent.buttons & 2) > 0){
+                        this.world.grid[iv.y][iv.x] = 0
+                    }
+                    
                 }
             }
         })
@@ -103,7 +112,7 @@ export default class LevelEditor{
             setInputValue('#name',level.name)
             this.loadedLevel = level
             this.world.grid = level.grid
-            this.world.entities[0].block.set(zero.c(),zero.c())
+            this.world.entities[0].block.set(this.world.index2world(this.world.gridsize().scale(0.5)),zero.c())
         })
     }
     
