@@ -18,7 +18,7 @@ export default class LevelEditor{
         document.querySelector('#levelselect').innerHTML = ''
         this.idb.filter<Level>('level',e => true).then((res) => {
             for(var level of res){
-                document.querySelector('#levelselect').insertAdjacentHTML('beforeend',`<option value="${level.id}">${level.id}</option>`)
+                document.querySelector('#levelselect').insertAdjacentHTML('beforeend',`<option value="${level.id}">${level.name}</option>`)
             }
         })
     }
@@ -43,11 +43,24 @@ export default class LevelEditor{
         })
 
         canvas.addEventListener('mousedown', e => {
-            var pos = getMousePos(e)
-            var iv = world.world2index(this.camera.screenspace2worldspace(pos))
-            if(Block.fromSize(new Vector(0,0),this.world.gridsize().sub(new Vector(1,1))).intersectVector(iv)){
-                this.world.grid[iv.y][iv.x] = 1 - this.world.grid[iv.y][iv.x]
+            // var pos = getMousePos(e)
+            // var iv = world.world2index(this.camera.screenspace2worldspace(pos))
+            // if(Block.fromSize(new Vector(0,0),this.world.gridsize().sub(new Vector(1,1))).intersectVector(iv)){
+            //     this.world.grid[iv.y][iv.x] = 1 - this.world.grid[iv.y][iv.x]
+            // }
+        })
+
+        canvas.addEventListener('mousemove', e => {
+            
+            if(e.buttons == 1){
+                var pos = getMousePos(e)
+                var iv = world.world2index(this.camera.screenspace2worldspace(pos))
+                if(Block.fromSize(new Vector(0,0),this.world.gridsize().sub(new Vector(1,1))).intersectVector(iv)){
+                    this.world.grid[iv.y][iv.x] = e.shiftKey ? 0 : 1
+                }
             }
+            
+
         })
 
         document.querySelector('#createlevel').addEventListener('click', e => {

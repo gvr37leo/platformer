@@ -1,5 +1,5 @@
 import {loop, createCanvas, clamp, keys, floor, round, line, strokeRect, getMousePos} from './utils'
-import {World, Entity} from './world'
+import {World, Entity,relIntersect} from './world'
 import { PlatformController } from './platformController'
 import Vector from './vector'
 import { Block } from './block'
@@ -41,7 +41,6 @@ var {canvas,ctxt} = createCanvas(screensize.x,screensize.y)
 // platformController.body.block.set(new Vector(40,40),new Vector(0,0))
 // platformController.body.speed = new Vector(0,100)
 var camera = new Camera(ctxt,platformController.body,screensize)
-
 function start(){
     loop((dt) => {
         if(keys['p']){

@@ -30,7 +30,7 @@ export class BoxcastHit{
 export class RaycastHit{
 
     constructor(
-        public hit:boolean,
+        public isHit:boolean,
         public origin:Vector,
         public dir:Vector,
         public hitLocation:Vector,
@@ -105,12 +105,12 @@ export class World{
 
         var points = this.getPointsOnEdge(skinblock,dir)
         var rays = points.map(point => this.raycastAxisAligned(point,axis,lengthen(amount,_skinwidth)))
-        var hitray = findbest(rays.filter(ray => ray.hit),ray => -ray.relHitLocation.length())
+        var hitray = findbest(rays.filter(ray => ray.isHit),ray => -ray.relHitLocation.length())
         for(var ray of rays){
             ray.relHitLocation.vals[axis] = lengthen(ray.relHitLocation.vals[axis], -_skinwidth)
             this.firedRays.push(ray)
         }
-        return new BoxcastHit(rays,hitray?.hit ?? false,hitray ?? rays[0])
+        return new BoxcastHit(rays,hitray?.isHit ?? false,hitray ?? rays[0])
     }
 
     raycastAxisAligned(originWorld:Vector,axis,amount):RaycastHit{
@@ -134,8 +134,12 @@ export class World{
 
         var out:[number,number] = [0,0]
         
-        res.hit = collideLine(origin,origin.c().add(dir),block,out)
-        res.hitLocation = origin.lerp(end,out[0])
+        res.isHit = collideLine(origin,origin.c().add(dir),block,out)
+        if(res.isHit){
+            res.hitLocation = origin.lerp(end,out[0])
+        }else{
+            res.hitLocation = end.c()
+        }
         res.relHitLocation = origin.to(res.hitLocation)
         return res
     }
@@ -207,7 +211,7 @@ export class World{
 
     debugDrawRays(ctxt:CanvasRenderingContext2D){
         for(var ray of this.firedRays){
-            if(ray.hit){
+            if(ray.isHit){
                 ctxt.strokeStyle = 'red'
             }else{
                 ctxt.strokeStyle = 'blue'
@@ -241,15 +245,14 @@ function collideLine(a:Vector,b:Vector,box:Block,out:[number,number]):boolean{
     return result && inRange(0,1,out[0])// && inRange(0,1,out[1])
 }
 
-function relIntersect(amin:number,amax:number,bmin:number,bmax:number,out:[number,number]){
+export function relIntersect(amin:number,amax:number,bmin:number,bmax:number,out:[number,number]){
     if(amin == amax){//this could use some work
         out[0] = -Infinity
         out[1] = Infinity
         return
     }
-    var length = Math.abs(to(amin, amax))
-    out[0] = Math.abs(to(amin,bmin)) / length;
-    out[1] = Math.abs(to(amin,bmax)) / length;
+    out[0] = inverseLerp(bmin,amin,amax)
+    out[1] = inverseLerp(bmax,amin,amax)
     if(out[0] > out[1]){
         swap(out,0,1)
     }
