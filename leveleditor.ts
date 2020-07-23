@@ -13,15 +13,9 @@ export default class LevelEditor{
     loadedLevel:Level = null
     idb:IndexedDB
     onLoad = new EventSystem<any>()
+    lastmouseevent: MouseEvent
 
-    updateDropdown(){
-        document.querySelector('#levelselect').innerHTML = ''
-        this.idb.filter<Level>('level',e => true).then((res) => {
-            for(var level of res){
-                document.querySelector('#levelselect').insertAdjacentHTML('beforeend',`<option value="${level.id}">${level.name}</option>`)
-            }
-        })
-    }
+    
 
     constructor(public world:World,canvas:HTMLCanvasElement, public camera:Camera){
         this.idb = new IndexedDB('plat',1,(db,self) => {
@@ -43,24 +37,24 @@ export default class LevelEditor{
         })
 
         canvas.addEventListener('mousedown', e => {
-            // var pos = getMousePos(e)
-            // var iv = world.world2index(this.camera.screenspace2worldspace(pos))
-            // if(Block.fromSize(new Vector(0,0),this.world.gridsize().sub(new Vector(1,1))).intersectVector(iv)){
-            //     this.world.grid[iv.y][iv.x] = 1 - this.world.grid[iv.y][iv.x]
-            // }
+            this.lastmouseevent = e
         })
 
-        canvas.addEventListener('mousemove', e => {
-            
-            if(e.buttons == 1){
-                var pos = getMousePos(e)
+        canvas.addEventListener('contextmenu', e => {
+            e.preventDefault()
+        })
+
+        world.beforeUpdate.listen(() => {
+            if(this.lastmouseevent && (this.lastmouseevent.buttons & 1) > 0){
+                var pos = getMousePos(this.lastmouseevent)
                 var iv = world.world2index(this.camera.screenspace2worldspace(pos))
                 if(Block.fromSize(new Vector(0,0),this.world.gridsize().sub(new Vector(1,1))).intersectVector(iv)){
-                    this.world.grid[iv.y][iv.x] = e.shiftKey ? 0 : 1
+                    this.world.grid[iv.y][iv.x] = this.lastmouseevent.shiftKey ? 0 : 1
                 }
             }
-            
-
+        })
+        canvas.addEventListener('mousemove', e => {
+            this.lastmouseevent = e
         })
 
         document.querySelector('#createlevel').addEventListener('click', e => {
@@ -96,6 +90,8 @@ export default class LevelEditor{
             this.loadedLevel.lvl = getInputValueNumber('#level')
             this.saveLevel(this.loadedLevel)
         })
+
+        
     }
 
     createLevel(level:Level){
@@ -119,6 +115,15 @@ export default class LevelEditor{
 
     deleteLevel(id){
         this.idb.remove('level',id)
+    }
+
+    updateDropdown(){
+        document.querySelector('#levelselect').innerHTML = ''
+        this.idb.filter<Level>('level',e => true).then((res) => {
+            for(var level of res){
+                document.querySelector('#levelselect').insertAdjacentHTML('beforeend',`<option value="${level.id}">${level.name}</option>`)
+            }
+        })
     }
     
 }
